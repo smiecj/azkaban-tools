@@ -48,6 +48,8 @@ search_project_name="stg"
 
 target_project_name="stg"
 
+flow_name_allowlist="(flow1|flow2)"
+
 # fix_schedule_cron="0 0 18 * * ?"
 
 execute_project_name="dw"

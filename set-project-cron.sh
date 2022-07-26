@@ -41,8 +41,12 @@ main() {
     echo "Info: search project: $search_project_name, flow count: ${#flow_name_arr[@]}"
     for flow_name in ${flow_name_arr[@]}
     do
+        if [ -n "${flow_name_allowlist}" ] && [[ ! ${flow_name_allowlist} =~ $flow_name ]]; then
+            log_info "flow name: $flow_name, not in allow list, will not sync"
+            continue
+        fi
         cron_expression=$(get_flow_schedule $project_id $flow_name $search_session_id $produce_azkaban_address)
-        echo "Info: flow name: $flow_name, cron: $cron_expression"
+        log_info "flow name: $flow_name, cron: $cron_expression"
         if [ -n "$cron_expression" ]; then
             ## set flow's scheduler
             ### if fix schedule is set, need set $fix_schedule_cron, but the premise is this flow has
