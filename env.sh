@@ -43,6 +43,7 @@ command_get_flow_executing=getRunning
 command_get_schedule=fetchSchedule
 command_exec_flow=executeFlow
 command_cancel_flow=cancelFlow
+command_remove_schedule=removeSched
 
 search_project_name="stg"
 

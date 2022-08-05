@@ -9,3 +9,6 @@ kill:
 
 set_cron:
 	sh set-project-cron.sh
+
+reset_cron:
+	sh reset-project-cron.sh

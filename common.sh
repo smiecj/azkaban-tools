@@ -81,6 +81,21 @@ get_flow_schedule() {
     echo "$tmp_cron_expression"
 }
 
+# get flow schedule and id
+get_flow_schedule_and_id() {
+    local project_id=$1
+    local flow_name=$2
+    local session_id=$3
+    local azkaban_address=$4
+    local get_project_ret=`curl "http://$azkaban_address/schedule?ajax=$command_get_schedule&projectId=$project_id&flowId=$flow_name&session.id=$session_id" 2>/dev/null`
+    local tmp_cron_expression=`echo "$get_project_ret" | jq '.schedule.cronExpression // empty'`
+    local tmp_schedule_id=`echo "$get_project_ret" | jq '.schedule.scheduleId // empty'`
+    ### crontab has '*' mark, need return string format
+    tmp_cron_expression=`echo "$tmp_cron_expression" | sed 's/\*/\\\\*/g'`
+    echo "cron=$tmp_cron_expression"
+    echo "schedule_id=$tmp_schedule_id"
+}
+
 # set flow by specify schedule
 set_flow_schedule() {
     local project_name=$1
@@ -90,8 +105,19 @@ set_flow_schedule() {
     local azkaban_address=$5
 
     schedule=`echo "$schedule" | sed -e 's/"//g'`
+    schedule=`echo "$schedule" | sed -e 's/\\\\\*/\*/g'`
     local get_project_ret=`curl -k -d ajax=scheduleCronFlow -d projectName=$project_name -d flow=$flow_name --data-urlencode cronExpression="$schedule" -b "azkaban.browser.session.id=$session_id" http://$azkaban_address/schedule 2>/dev/null`
     echo "$get_project_ret"
+}
+
+# delete flow schedule
+delete_flow_schedule() {
+    local schedule_id=$1
+    local session_id=$2
+    local azkaban_address=$3
+
+    local remove_schedule_ret=`curl -k --data-urlencode action="$command_remove_schedule" --data-urlencode session.id=$session_id --data-urlencode scheduleId=$schedule_id http://$azkaban_address/schedule 2>/dev/null`
+    echo "$remove_schedule_ret"
 }
 
 # start project's all flow
