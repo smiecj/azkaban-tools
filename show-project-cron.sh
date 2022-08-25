@@ -28,17 +28,19 @@ main() {
 
     ## get each flow's schedule, and statistical flow count which has schedule
     flow_name_arr=($(echo "$flow_name_join_str" | tr "," "\n"))
-    echo "Info: search project: $search_project_name, flow count: ${#flow_name_arr[@]}"
+    log_info "Info: search project: $search_project_name, flow count: ${#flow_name_arr[@]}"
     flow_with_scheduler_count=0
     for flow_name in ${flow_name_arr[@]}
     do
         cron_expression=$(get_flow_schedule $project_id $flow_name $session_id $azkaban_address)
-        echo "Info: flow name: $flow_name, cron: $cron_expression"
         if [ -n "$cron_expression" ]; then
+            log_info "flow name: $flow_name, cron: $cron_expression"
             flow_with_scheduler_count=$((flow_with_scheduler_count + 1))
+        else
+            log_info "flow name: $flow_name, cron empty"
         fi
     done
-    echo "Info: search project: $search_project_name, flow count: ${#flow_name_arr[@]}, with scheduler flow count: $flow_with_scheduler_count"
+    log_info "Info: search project: $search_project_name, flow count: ${#flow_name_arr[@]}, with scheduler flow count: $flow_with_scheduler_count"
 }
 
 main

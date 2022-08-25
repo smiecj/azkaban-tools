@@ -22,24 +22,28 @@ log_file=$log_folder/"$log_name"_"$log_id".log
 
 log_debug() {
     if [ $log_level -ge $LOG_LEVEL_DEBUG ]; then
+        echo `date "+%Y-%m-%d %H:%M:%S [DEBUG] "`"$*"
         echo `date "+%Y-%m-%d %H:%M:%S [DEBUG] "`"$*" >> $log_file
     fi
 }
 
 log_info() {
     if [ $log_level -ge $LOG_LEVEL_INFO ]; then
+        echo `date "+%Y-%m-%d %H:%M:%S [DEBUG] "`"$*"
         echo `date "+%Y-%m-%d %H:%M:%S [INFO] "`"$*" >> $log_file
     fi
 }
 
 log_warn() {
     if [ $log_level -ge $LOG_LEVEL_WARN ]; then
+        echo `date "+%Y-%m-%d %H:%M:%S [DEBUG] "`"$*"
         echo `date "+%Y-%m-%d %H:%M:%S [WARN] "`"$*" >> $log_file
     fi
 }
 
 log_error() {
     if [ $log_level -ge $LOG_LEVEL_ERROR ]; then
+        echo `date "+%Y-%m-%d %H:%M:%S [DEBUG] "`"$*"
         echo `date "+%Y-%m-%d %H:%M:%S [ERROR] "`"$*" >> $log_file
     fi
 }

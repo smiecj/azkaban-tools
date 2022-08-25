@@ -30,6 +30,11 @@ main() {
     flow_name_join_str=""
     flow_count=""
     project_id=""
+    target_project_id=""
+
+    eval $(get_project_flow "$target_project_name" $exec_session_id $exec_azkaban_address)
+    target_project_id=$project_id
+
     eval $(get_project_flow "$search_project_name" $search_session_id $search_azkaban_address)
 
     if [ -z "$project_id" ]; then
@@ -45,10 +50,16 @@ main() {
             log_info "flow name: $flow_name, not in allow list, will not sync"
             continue
         fi
-        cron_expression=$(get_flow_schedule $project_id $flow_name $search_session_id $produce_azkaban_address)
-        log_info "flow name: $flow_name, cron: $cron_expression"
+        cron_expression=$(get_flow_schedule $project_id $flow_name $search_session_id $search_azkaban_address)
+        target_cron_expression=$(get_flow_schedule $target_project_id $flow_name $exec_session_id $exec_azkaban_address)
+        log_info "flow name: $flow_name, cron: $cron_expression, current target cron: $target_cron_expression"
         if [ -n "$cron_expression" ]; then
             ## set flow's scheduler
+            ### if current flow already has cron, will not overwrite
+            if [ -n "$target_cron_expression" ]; then
+                log_info "flow name: $flow_name: already has cron: $target_cron_expression, will not set"
+                continue
+            fi
             ### if fix schedule is set, need set $fix_schedule_cron, but the premise is this flow has
             ### schedule in the source env
             if [ -n "$fix_schedule_cron" ]; then
