@@ -14,26 +14,14 @@ test_azkaban_user=azkaban
 test_azkaban_password=admin123
 
 ## get specific env's information
-### output: 
 get_azkaban_env_info_by_envname() {
      local env_name=$1
-     case "$env_name" in
-     "produce")
-          echo "tmp_azkaban_address=$produce_azkaban_address"
-          echo "tmp_azkaban_user=$produce_azkaban_user"
-          echo "tmp_azkaban_password=$produce_azkaban_password"
-          ;;
-     "test")
-          echo "tmp_azkaban_address=$test_azkaban_address"
-          echo "tmp_azkaban_user=$test_azkaban_user"
-          echo "tmp_azkaban_password=$test_azkaban_password"
-          ;;
-     "cloud")
-          echo "tmp_azkaban_address=$cloud_azkaban_address"
-          echo "tmp_azkaban_user=$cloud_azkaban_user"
-          echo "tmp_azkaban_password=$cloud_azkaban_password"
-          ;;
-     esac
+     local azkaban_address_key=${env_name}_azkaban_address
+     local azkaban_user_key=${env_name}_azkaban_user
+     local azkaban_password_key=${env_name}_azkaban_password
+     echo "tmp_azkaban_address=${!azkaban_address_key}"
+     echo "tmp_azkaban_user=${!azkaban_user_key}"
+     echo "tmp_azkaban_password=${!azkaban_password_key}"
 }
 
 command_login=login
@@ -44,6 +32,9 @@ command_get_schedule=fetchSchedule
 command_exec_flow=executeFlow
 command_cancel_flow=cancelFlow
 command_remove_schedule=removeSched
+command_add_permission=addPermission
+command_change_permission=changePermission
+command_get_permission=getPermissions
 
 search_project_name="stg"
 
@@ -56,6 +47,9 @@ flow_name_allowlist="(flow1|flow2)"
 execute_project_name="dw"
 execute_block_flow_names=""
 execute_allow_flow_names="(DW_HIVE_CLEAN_DATA)"
+
+execute_project_name_arr="stg dw"
+execute_user_name="hive"
 
 # page interface limit
 search_limit=10

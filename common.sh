@@ -90,6 +90,7 @@ get_flow_schedule_and_id() {
     local get_project_ret=`curl "http://$azkaban_address/schedule?ajax=$command_get_schedule&projectId=$project_id&flowId=$flow_name&session.id=$session_id" 2>/dev/null`
     local tmp_cron_expression=`echo "$get_project_ret" | jq '.schedule.cronExpression // empty'`
     local tmp_schedule_id=`echo "$get_project_ret" | jq '.schedule.scheduleId // empty'`
+    
     ### crontab has '*' mark, need return string format
     tmp_cron_expression=`echo "$tmp_cron_expression" | sed 's/\*/\\\\*/g'`
     echo "cron=$tmp_cron_expression"
@@ -147,6 +148,68 @@ start_all_flow_by_project_name() {
         local exec_flow_ret=`curl "http://$azkaban_address/executor?ajax=$command_exec_flow&project=$project_name&flow=$current_flow_name&session.id=$session_id" 2>/dev/null`
         echo "flow execute ret: $exec_flow_ret"
     done
+}
+
+set_project_perm_common() {
+    local project_name=$1
+    local user_name=$2
+    local session_id=$3
+    local azkaban_address=$4
+    local perm=$5
+
+    # print current permission first
+    local get_perm_ret=`curl "http://$azkaban_address/manager?ajax=$command_get_permission&project=$project_name&session.id=$session_id" 2>/dev/null`
+    echo "get project: ${project_name} perm ret: ${get_perm_ret}"
+
+    local add_perm_ret=`curl "http://$azkaban_address/manager?ajax=$command_add_permission&project=$project_name&name=${user_name}&session.id=$session_id&${perm}" 2>/dev/null`
+    echo "add project: ${project_name} perm ret: ${add_perm_ret}"
+    
+    # if perm has created, add will not success, so need execute change
+    local change_perm_ret=`curl "http://$azkaban_address/manager?ajax=$command_change_permission&project=$project_name&name=${user_name}&session.id=$session_id&${perm}" 2>/dev/null`
+    echo "change project: ${project_name} perm ret: ${change_perm_ret}"
+}
+
+# set project with readonly permission
+set_project_perm_readonly() {
+    local project_name=$1
+    local user_name=$2
+    local session_id=$3
+    local azkaban_address=$4
+
+    perm="permissions%5Badmin%5D=false&permissions%5Bread%5D=true&permissions%5Bwrite%5D=false&permissions%5Bexecute%5D=true&permissions%5Bschedule%5D=true&group=false"
+    set_project_perm_common ${project_name} ${user_name} ${session_id} ${azkaban_address} ${perm}
+}
+
+# set project with write only (no execute and schedule) permission
+set_project_perm_writeonly() {
+    local project_name=$1
+    local user_name=$2
+    local session_id=$3
+    local azkaban_address=$4
+    
+    perm="permissions%5Badmin%5D=false&permissions%5Bread%5D=true&permissions%5Bwrite%5D=true&permissions%5Bexecute%5D=false&permissions%5Bschedule%5D=false&group=false"
+    set_project_perm_common ${project_name} ${user_name} ${session_id} ${azkaban_address} ${perm}
+}
+
+# set project with write, read and execute perm
+set_project_perm_readandwrite() {
+    local project_name=$1
+    local user_name=$2
+    local session_id=$3
+    local azkaban_address=$4
+    
+    perm="permissions%5Badmin%5D=false&permissions%5Bread%5D=true&permissions%5Bwrite%5D=true&permissions%5Bexecute%5D=true&permissions%5Bschedule%5D=true&group=false"
+    set_project_perm_common ${project_name} ${user_name} ${session_id} ${azkaban_address} ${perm}
+}
+
+delete_project_perm() {
+    local project_name=$1
+    local user_name=$2
+    local session_id=$3
+    local azkaban_address=$4
+    
+    perm="permissions%5Badmin%5D=false&permissions%5Bread%5D=false&permissions%5Bwrite%5D=false&permissions%5Bexecute%5D=false&permissions%5Bschedule%5D=false&group=false"
+    set_project_perm_common ${project_name} ${user_name} ${session_id} ${azkaban_address} ${perm}
 }
 
 # stop project's all executing job

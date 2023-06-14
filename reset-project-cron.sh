@@ -1,16 +1,32 @@
 #!/bin/bash
-# set -euxo pipefail
+#set -euxo pipefail
 
 . ./env.sh
 . ./log.sh
 
 . ./common.sh
 
+env_target=""
+if [ $# -eq 1 ]; then
+    env_target=$1
+fi
+
 main() {   
     ## get all source project scheduler. logic is same as show-project-cron.sh
     eval $(login $exec_env_name)
     exec_azkaban_address=$tmp_azkaban_address
     exec_session_id=$tmp_session_id
+
+    if [ -n "${env_target}" ]; then
+        eval $(get_azkaban_env_info_by_envname $env_target)
+        exec_user_azkaban_address=$tmp_azkaban_address
+        if [ "${exec_user_azkaban_address}" != "${exec_azkaban_address}" ]; then
+            log_warn "to reset cron is not same as exec address, will exit"
+            exit 0
+        fi
+        eval $(login $env_target)
+        exec_user_session_id=$tmp_session_id
+    fi
 
     ## project produce env
     if [ "$produce_azkaban_address" == "$exec_azkaban_address" ]; then
@@ -44,8 +60,8 @@ main() {
             ## reset flow's scheduler
             ### delete scheduler
             delete_cron_ret=$(delete_flow_schedule $schedule_id $exec_session_id $exec_azkaban_address)
-            ### set scheduler
-            set_cron_ret=$(set_flow_schedule $target_project_name $flow_name "$cron_expression" $exec_session_id $exec_azkaban_address)
+            ### set scheduler (target project is same as search project name)
+            set_cron_ret=$(set_flow_schedule $search_project_name $flow_name "$cron" ${exec_user_session_id} $exec_azkaban_address)
             log_info "flow name: $flow_name: cron: $cron, delete result: $delete_cron_ret, set result: $set_cron_ret"
         fi
     done
