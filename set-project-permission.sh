@@ -24,6 +24,8 @@ set_project_permission() {
                 set_project_perm_readonly $current_project_name ${execute_user_name} ${session_id} ${azkaban_address}
             elif [ "READANDWRITE" == "${permission}" ]; then
                 set_project_perm_readandwrite $current_project_name ${execute_user_name} ${session_id} ${azkaban_address}
+            elif [ "READSCHEDULE" == "${permission}" ]; then
+                set_project_perm_readandschedule $current_project_name ${execute_user_name} ${session_id} ${azkaban_address}
             elif [ "WRITEONLY" == "${permission}" ]; then
                 set_project_perm_writeonly $current_project_name ${execute_user_name} ${session_id} ${azkaban_address}
             elif [ "DELETE" == "${permission}" ]; then

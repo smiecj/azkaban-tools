@@ -22,6 +22,9 @@ set_perm:
 set_perm_writeonly:
 	sh set-project-permission.sh WRITEONLY
 
+set_perm_readschedule:
+	sh set-project-permission.sh READSCHEDULE
+
 set_perm_readwrite:
 	sh set-project-permission.sh READANDWRITE
 

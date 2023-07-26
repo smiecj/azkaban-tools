@@ -1,7 +1,9 @@
 # azkaban_tools
 
 This is a azkaban tools mainly used for execute all azkaban project, sync scheduler or others.
+
 azkaban version: [3.90](https://github.com/azkaban/azkaban/tree/3.90.0)
+
 how to work: access azkaban interface. Refer: [azkaban API documentation](https://azkaban.readthedocs.io/en/latest/ajaxApi.html)
 
 ## use method
@@ -38,16 +40,19 @@ make run
 
 ### set project permission
 ```
-# default: readonly(with schedule)
+# default: readonly(without schedule)
 make set_perm
 
 # writeonly(without schedule)
 make set_perm_writeonly
 
-# read, write and execute(no admin)
+# read and schedule(with execute and schedule)
+make set_perm_readschedule
+
+# read, write, schedule and execute(no admin)
 make set_perm_readwrite
 
-# clean the user's permission
+# clean user's permission
 make delete_perm
 ```
 

@@ -176,7 +176,7 @@ set_project_perm_readonly() {
     local session_id=$3
     local azkaban_address=$4
 
-    perm="permissions%5Badmin%5D=false&permissions%5Bread%5D=true&permissions%5Bwrite%5D=false&permissions%5Bexecute%5D=true&permissions%5Bschedule%5D=true&group=false"
+    perm="permissions%5Badmin%5D=false&permissions%5Bread%5D=true&permissions%5Bwrite%5D=false&permissions%5Bexecute%5D=false&permissions%5Bschedule%5D=false&group=false"
     set_project_perm_common ${project_name} ${user_name} ${session_id} ${azkaban_address} ${perm}
 }
 
@@ -188,6 +188,17 @@ set_project_perm_writeonly() {
     local azkaban_address=$4
     
     perm="permissions%5Badmin%5D=false&permissions%5Bread%5D=true&permissions%5Bwrite%5D=true&permissions%5Bexecute%5D=false&permissions%5Bschedule%5D=false&group=false"
+    set_project_perm_common ${project_name} ${user_name} ${session_id} ${azkaban_address} ${perm}
+}
+
+# set project with readonly permission
+set_project_perm_readandschedule() {
+    local project_name=$1
+    local user_name=$2
+    local session_id=$3
+    local azkaban_address=$4
+
+    perm="permissions%5Badmin%5D=false&permissions%5Bread%5D=true&permissions%5Bwrite%5D=false&permissions%5Bexecute%5D=true&permissions%5Bschedule%5D=true&group=false"
     set_project_perm_common ${project_name} ${user_name} ${session_id} ${azkaban_address} ${perm}
 }
 
