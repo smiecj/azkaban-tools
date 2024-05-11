@@ -7,6 +7,9 @@ show_cron:
 kill:
 	sh kill-jobs.sh
 
+sync_cron:
+	sh sync-project-cron.sh
+
 set_cron:
 	sh set-project-cron.sh
 

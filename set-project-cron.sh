@@ -6,12 +6,7 @@
 
 . ./common.sh
 
-main() {   
-    ## get all source project scheduler. logic is same as show-project-cron.sh 
-    eval $(login $search_env_name)
-    search_azkaban_address=$tmp_azkaban_address
-    search_session_id=$tmp_session_id
-
+main() {
     eval $(login $exec_env_name)
     exec_azkaban_address=$tmp_azkaban_address
     exec_session_id=$tmp_session_id
@@ -22,53 +17,39 @@ main() {
         exit
     fi
 
-    if [ -z $search_session_id ] || [ -z $exec_session_id ]; then
+    if [ -z $exec_session_id ]; then
         log_error "login failed, please check user and pwd"
         exit
     fi
 
-    flow_name_join_str=""
-    flow_count=""
-    project_id=""
-    target_project_id=""
-
-    eval $(get_project_flow "$target_project_name" $exec_session_id $exec_azkaban_address)
-    target_project_id=$project_id
-
-    eval $(get_project_flow "$search_project_name" $search_session_id $search_azkaban_address)
-
-    if [ -z "$project_id" ]; then
-        log_warn "search project: $search_project_name, can not match any project, will exit"
+    if [ -z "$fix_schedule_cron" ]; then
+        echo "schedule cron not set"
         exit
     fi
 
+    flow_name_join_str=""
+    project_id=""
+
+    eval $(get_project_flow "$target_project_name" $exec_session_id $exec_azkaban_address)
+
     flow_name_arr=($(echo "$flow_name_join_str" | tr "," "\n"))
-    echo "Info: search project: $search_project_name, flow count: ${#flow_name_arr[@]}"
     for flow_name in ${flow_name_arr[@]}
     do
         if [ -n "${flow_name_allowlist}" ] && [[ ! ${flow_name_allowlist} =~ $flow_name ]]; then
             log_info "flow name: $flow_name, not in allow list, will not sync"
             continue
         fi
-        cron_expression=$(get_flow_schedule $project_id $flow_name $search_session_id $search_azkaban_address)
-        target_cron_expression=$(get_flow_schedule $target_project_id $flow_name $exec_session_id $exec_azkaban_address)
-        log_info "flow name: $flow_name, cron: $cron_expression, current target cron: $target_cron_expression"
+        cron_expression=$(get_flow_schedule $project_id $flow_name $exec_session_id $exec_azkaban_address)
+        log_info "flow name: $flow_name, current cron: $cron_expression"
+        
+        ## set flow's scheduler
+        ### if current flow already has cron, will not overwrite
         if [ -n "$cron_expression" ]; then
-            ## set flow's scheduler
-            ### if current flow already has cron, will not overwrite
-            if [ -n "$target_cron_expression" ]; then
-                log_info "flow name: $flow_name: already has cron: $target_cron_expression, will not set"
-                continue
-            fi
-            ### if fix schedule is set, need set $fix_schedule_cron, but the premise is this flow has
-            ### schedule in the source env
-            if [ -n "$fix_schedule_cron" ]; then
-                set_cron_ret=$(set_flow_schedule $target_project_name $flow_name "$fix_schedule_cron" $exec_session_id $exec_azkaban_address)
-            else
-                set_cron_ret=$(set_flow_schedule $target_project_name $flow_name "$cron_expression" $exec_session_id $exec_azkaban_address)
-            fi
-            log_info "flow name: $flow_name: cron: $cron_expression, set result: $set_cron_ret"
+            log_info "flow name: $flow_name: already has cron: $cron_expression, will not set"
+            continue
         fi
+        set_cron_ret=$(set_flow_schedule $target_project_name $flow_name "$fix_schedule_cron" $exec_session_id $exec_azkaban_address)
+        log_info "flow name: $flow_name: cron: $fix_schedule_cron, set result: $set_cron_ret"
     done
 }
 

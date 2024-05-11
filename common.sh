@@ -3,7 +3,6 @@ login() {
     local env_name=$1
     eval $(get_azkaban_env_info_by_envname $env_name)
     local login_ret=`curl -X POST --data "action=$command_login&username=$tmp_azkaban_user&password=$tmp_azkaban_password" http://$tmp_azkaban_address 2>/dev/null`
-    #session_id=`echo "$login_ret" | jq ".status"`
     local tmp_session_id=`echo "$login_ret" | jq '.["session.id"] // empty' | tr -d '"'`
     echo "tmp_azkaban_address=$tmp_azkaban_address"
     echo "tmp_session_id=$tmp_session_id"
@@ -138,16 +137,27 @@ start_all_flow_by_project_name() {
         echo "flow_name: $current_flow_name"
 
         ## block and allow filter
-        if [[ $execute_block_flow_names =~ $current_flow_name ]]; then
+        if [ -n "$execute_block_flow_names" ] && [[ $current_flow_name =~ $execute_block_flow_names ]]; then
             echo "block flow name: $current_flow_name"
             continue
-        elif [ -n "$execute_allow_flow_names" ] && [[ ! $execute_allow_flow_names =~ $current_flow_name ]] ; then
+        elif [ -n "$execute_allow_flow_names" ] && [[ ! $current_flow_name =~ $execute_allow_flow_names ]] ; then
             echo "allow not contain name: $current_flow_name"
             continue
         fi
         local exec_flow_ret=`curl "http://$azkaban_address/executor?ajax=$command_exec_flow&project=$project_name&flow=$current_flow_name&session.id=$session_id" 2>/dev/null`
         echo "flow execute ret: $exec_flow_ret"
     done
+}
+
+# start flow
+start_flow_by_project_name_and_flow_name() {
+    local project_name=$1
+    local flow_name=$2
+    local session_id=$3
+    local azkaban_address=$4
+
+    local exec_flow_ret=`curl "http://$azkaban_address/executor?ajax=$command_exec_flow&project=$project_name&flow=$flow_name&session.id=$session_id" 2>/dev/null`
+    echo "flow execute ret: $exec_flow_ret"
 }
 
 set_project_perm_common() {

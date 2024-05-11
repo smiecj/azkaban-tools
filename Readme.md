@@ -9,36 +9,49 @@ how to work: access azkaban interface. Refer: [azkaban API documentation](https:
 ## use method
 
 ### get task crontab info by project name
+
 ```
 make show_cron
 ```
 
 ### sync task crontab info by project name (from other env or fixed cron)
+
+```
+make sync_cron
+```
+
+### set task crontab by fixed crontab
+
 ```
 make set_cron
 ```
 
 ### reset task cron (for remove fail email and set submitted user)
+
 ```
 make reset_cron
 ```
 
 ### clean task cron
+
 ```
 make clean_cron
 ```
 
 ### kill current running jobs by project name
+
 ```
 make kill
 ```
 
 ### run project's all flow
+
 ```
 make run
 ```
 
 ### set project permission
+
 ```
 # default: readonly(without schedule)
 make set_perm
@@ -57,6 +70,7 @@ make delete_perm
 ```
 
 ## configuration
+
 All configuration is in env.sh
 
 | group | configuration | usage | example |
@@ -70,7 +84,7 @@ All configuration is in env.sh
 |                | execute_user_name | batch set project permission, the user to set | hive |
 | **task**    | search_project_name | start project name, eg: sync crontab, the origin project name | stg |
 |             | target_project_name | execute project name, eg: sync crontab, the target project name | stg |
-|             | fix_schedule_cron | sync crontab task: if you need set all project flow to a specific crontab, please use this param | "0 0 18 * * ?" |
+|             | fix_schedule_cron | set crontab task: if you need set all project flow to a specific crontab, please use this param | "0 0 18 * * ?" |
 |             | execute_block_flow_names | run task: block flow name | "(not_execute_task1\|not_execute_task2)" |
 |             | execute_allow_flow_names | run task: to execute task | "(to_execute_task1\|to_execute_task2)" |
 | **flow**    | flow_name_allowlist | set cron allow flow name list | "(to_set_cron_flow1\|to_set_cron_flow2)" |
